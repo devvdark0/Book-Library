@@ -3,6 +3,7 @@ package book
 import (
 	"database/sql"
 	"github.com/devvdark0/book-library/internal/model"
+	"log"
 )
 
 type postgresRepository struct {
@@ -14,20 +15,20 @@ func NewPostgresRepository(db *sql.DB) postgresRepository {
 }
 
 func (p postgresRepository) Create(book model.Book) (model.Book, error) {
-	stmt, err := p.db.Prepare(
-		`INSERT INTO book(name, description, author, year) VALUES(?, ?, ?, ?) RETURNING id`,
-	)
+	log.Print("start creating a book...")
+	var id int64
+	err := p.db.QueryRow(
+		`INSERT INTO book(name, description, author, year) VALUES($1, $2, $3, $4) RETURNING id`,
+		book.Name,
+		book.Description,
+		book.Author,
+		book.Year,
+	).Scan(&id)
 	if err != nil {
+		log.Print(err)
 		return model.Book{}, err
 	}
-	res, err := stmt.Exec(book.Name, book.Description, book.Author, book.Year)
-	if err != nil {
-		return model.Book{}, err
-	}
-	id, err := res.LastInsertId()
-	if err != nil {
-		return model.Book{}, err
-	}
+
 	book.ID = id
 	return book, nil
 }

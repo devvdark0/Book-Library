@@ -15,5 +15,5 @@ type CreateBookRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Author      string `json:"author"`
-	Year        uint
+	Year        uint   `json:"year"`
 }

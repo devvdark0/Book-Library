@@ -13,6 +13,7 @@ import (
 
 func main() {
 	db, err := configureDatabase()
+	defer db.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,9 +31,8 @@ func main() {
 func configureDatabase() (*sql.DB, error) {
 	db, err := sql.Open(
 		"postgres",
-		"host=localhost user=vladislav password=mypassword dbname=book_db sslmode=disable",
+		"host=localhost port=5432 dbname=book_db sslmode=disable",
 	)
-	defer db.Close()
 	if err != nil {
 		return nil, err
 	}
