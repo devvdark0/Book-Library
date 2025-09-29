@@ -7,5 +7,5 @@ type BookService interface {
 	GetBook(id string) (model.Book, error)
 	ListBooks() ([]model.Book, error)
 	UpdateBook(id string, request model.UpdateBookRequest) (model.Book, error)
-	DeleteBook() error
+	DeleteBook(id string) error
 }

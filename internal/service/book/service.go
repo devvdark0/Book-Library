@@ -53,11 +53,39 @@ func (b bookService) ListBooks() ([]model.Book, error) {
 }
 
 func (b bookService) UpdateBook(id string, dto model.UpdateBookRequest) (model.Book, error) {
-	//TODO implement me
-	panic("implement me")
+	normalizeId, err := strconv.Atoi(id)
+	if err != nil {
+		return model.Book{}, err
+	}
+	var book model.Book
+	if dto.Name != nil {
+		book.Name = *dto.Name
+	}
+	if dto.Description != nil {
+		book.Description = *dto.Description
+	}
+	if dto.Author != nil {
+		book.Author = *dto.Author
+	}
+	if dto.Year != nil {
+		book.Year = *dto.Year
+	}
+
+	updatedBook, err := b.repo.Update(int64(normalizeId), book)
+	if err != nil {
+		return model.Book{}, err
+	}
+	return updatedBook, nil
 }
 
-func (b bookService) DeleteBook() error {
-	//TODO implement me
-	panic("implement me")
+func (b bookService) DeleteBook(id string) error {
+	normalizedId, err := strconv.Atoi(id)
+	if err != nil {
+		return err
+	}
+
+	if err = b.repo.Delete(int64(normalizedId)); err != nil {
+		return err
+	}
+	return nil
 }

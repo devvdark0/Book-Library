@@ -44,19 +44,19 @@ func (b bookAPI) Create(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (b bookAPI) List(w http.ResponseWriter, r *http.Request) {
+func (b bookAPI) List(w http.ResponseWriter, _ *http.Request) {
 	books, err := b.bookService.ListBooks()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	if err = json.NewEncoder(w).Encode(&books); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 }
 
 func (b bookAPI) Get(w http.ResponseWriter, r *http.Request) {
@@ -66,13 +66,13 @@ func (b bookAPI) Get(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 
 	if err = json.NewEncoder(w).Encode(book); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 }
 
 func (b bookAPI) Update(w http.ResponseWriter, r *http.Request) {
@@ -96,5 +96,10 @@ func (b bookAPI) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (b bookAPI) Remove(w http.ResponseWriter, r *http.Request) {
-
+	id := mux.Vars(r)["id"]
+	if err := b.bookService.DeleteBook(id); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
