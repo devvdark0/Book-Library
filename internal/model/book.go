@@ -1,11 +1,19 @@
 package model
 
-type Book struct {
-}
+import "time"
 
-type CreateBookRequest struct {
+type Book struct {
+	ID          int64
 	Name        string
 	Description string
 	Author      string
-	CreatedAt   string
+	Year        uint
+	CreatedAt   time.Time
+}
+
+type CreateBookRequest struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Author      string `json:"author"`
+	Year        uint
 }
