@@ -5,7 +5,7 @@ import "github.com/devvdark0/book-library/internal/model"
 type BookRepository interface {
 	Create(book model.Book) (model.Book, error)
 	List() ([]model.Book, error)
-	Get()
+	Get(id int64) (model.Book, error)
 	Update()
 	Delete()
 }

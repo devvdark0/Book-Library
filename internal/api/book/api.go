@@ -17,7 +17,7 @@ func NewAPI(service service.BookService, router *mux.Router) bookAPI {
 
 	router.HandleFunc("/book", handler.List).Methods(http.MethodGet)
 	router.HandleFunc("/book", handler.Create).Methods(http.MethodPost)
-	router.HandleFunc("book/{id}", handler.Get).Methods(http.MethodGet)
+	router.HandleFunc("/book/{id}", handler.Get).Methods(http.MethodGet)
 	router.HandleFunc("/book/{id}", handler.Update).Methods(http.MethodPatch)
 	router.HandleFunc("/book/{id}", handler.Remove).Methods(http.MethodDelete)
 
@@ -51,7 +51,7 @@ func (b bookAPI) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = json.NewEncoder(w).Encode(books); err != nil {
+	if err = json.NewEncoder(w).Encode(&books); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -60,11 +60,39 @@ func (b bookAPI) List(w http.ResponseWriter, r *http.Request) {
 }
 
 func (b bookAPI) Get(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	book, err := b.bookService.GetBook(id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
+	if err = json.NewEncoder(w).Encode(book); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 }
 
 func (b bookAPI) Update(w http.ResponseWriter, r *http.Request) {
-
+	id := mux.Vars(r)["id"]
+	var payload model.UpdateBookRequest
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	book, err := b.bookService.UpdateBook(id, payload)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err = json.NewEncoder(w).Encode(&book); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 func (b bookAPI) Remove(w http.ResponseWriter, r *http.Request) {

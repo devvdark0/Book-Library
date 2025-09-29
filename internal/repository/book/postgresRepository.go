@@ -18,11 +18,12 @@ func (p postgresRepository) Create(book model.Book) (model.Book, error) {
 	log.Print("start creating a book...")
 	var id int64
 	err := p.db.QueryRow(
-		`INSERT INTO book(name, description, author, year) VALUES($1, $2, $3, $4) RETURNING id`,
+		`INSERT INTO book(name, description, author, year, created_at) VALUES($1, $2, $3, $4, $5) RETURNING id`,
 		book.Name,
 		book.Description,
 		book.Author,
 		book.Year,
+		book.CreatedAt,
 	).Scan(&id)
 	if err != nil {
 		log.Print(err)
@@ -37,19 +38,42 @@ func (p postgresRepository) List() ([]model.Book, error) {
 	var books []model.Book
 	rows, err := p.db.Query(`SELECT * FROM book`)
 	if err != nil {
+		log.Print(err)
 		return nil, err
 	}
 	for rows.Next() {
-		if err := rows.Scan(books); err != nil {
+		var book model.Book
+		if err := rows.Scan(
+			&book.ID,
+			&book.Name,
+			&book.Description,
+			&book.Author,
+			&book.Year,
+			&book.CreatedAt,
+		); err != nil {
 			return nil, err
 		}
+		books = append(books, book)
 	}
 	return books, err
 }
 
-func (p postgresRepository) Get() {
-	//TODO implement me
-	panic("implement me")
+func (p postgresRepository) Get(id int64) (model.Book, error) {
+	var book model.Book
+
+	err := p.db.QueryRow(`SELECT * FROM book WHERE id=$1`, id).
+		Scan(&book.ID,
+			&book.Name,
+			&book.Description,
+			&book.Author,
+			&book.Year,
+			&book.CreatedAt,
+		)
+	if err != nil {
+		log.Print(err)
+		return model.Book{}, err
+	}
+	return book, nil
 }
 
 func (p postgresRepository) Update() {
