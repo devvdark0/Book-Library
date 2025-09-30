@@ -82,43 +82,52 @@ func (p postgresRepository) Get(id int64) (model.Book, error) {
 }
 
 func (p postgresRepository) Update(id int64, book model.Book) (model.Book, error) {
-	var query strings.Builder
+	var updatedBook model.Book
+	var query []string
 	var updates []interface{}
+	counter := 1
+
 	if book.Name != "" {
-		query.WriteString("name=?")
+		q := fmt.Sprintf("name=$%d", counter)
+		query = append(query, q)
 		updates = append(updates, book.Name)
+		counter++
 	}
 	if book.Description != "" {
-		query.WriteString("description=?")
+		q := fmt.Sprintf("description=$%d", counter)
+		query = append(query, q)
 		updates = append(updates, book.Description)
+		counter++
 	}
 	if book.Author != "" {
-		query.WriteString("author=?")
+		q := fmt.Sprintf("author=$%d", counter)
+		query = append(query, q)
 		updates = append(updates, book.Author)
+		counter++
 	}
 	if book.Year != 0 {
-		query.WriteString("year=?")
+		q := fmt.Sprintf("year=$%d", counter)
+		query = append(query, q)
 		updates = append(updates, book.Year)
+		counter++
 	}
+
 	updates = append(updates, id)
-	result, err := p.db.Exec(
-		fmt.Sprintf("UPDATE book SET %s", query.String()),
-		updates...,
+	err := p.db.QueryRow(
+		fmt.Sprintf(`UPDATE book SET %s WHERE id=$%d RETURNING name,description,author,year,created_at`,
+			strings.Join(query, ", "), counter), updates...,
+	).Scan(&updatedBook.Name,
+		&updatedBook.Description,
+		&updatedBook.Author,
+		&updatedBook.Year,
+		&updatedBook.CreatedAt,
 	)
 	if err != nil {
 		log.Print(err)
 		return model.Book{}, err
 	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return model.Book{}, err
-	}
-	if rowsAffected == 0 {
-		return model.Book{}, ErrNotFound
-	}
-	book.ID = id
-	return book, nil
+	updatedBook.ID = id
+	return updatedBook, nil
 }
 
 func (p postgresRepository) Delete(id int64) error {
