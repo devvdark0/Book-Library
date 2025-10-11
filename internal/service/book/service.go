@@ -2,19 +2,20 @@ package book
 
 import (
 	"github.com/devvdark0/book-library/internal/model"
+	"github.com/devvdark0/book-library/internal/repository"
 	"github.com/devvdark0/book-library/internal/service"
 	"github.com/google/uuid"
 )
 
 type bookService struct {
-	repo Repository
+	repo repository.Repository
 }
 
-func NewBookService(repo Repository) service.Service {
+func NewBookService(repo repository.Repository) service.Service {
 	return bookService{repo: repo}
 }
 
-func (b bookService) CreateBook(req model.CreateBookRequest) (model.Book, error) {
+func (b bookService) CreateBook(req model.CreateBookRequest) error {
 	//TODO implement me
 	panic("implement me")
 }

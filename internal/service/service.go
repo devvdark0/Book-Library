@@ -6,7 +6,7 @@ import (
 )
 
 type Service interface {
-	CreateBook(req model.CreateBookRequest) (model.Book, error)
+	CreateBook(req model.CreateBookRequest) error
 	ListBooks() ([]model.Book, error)
 	GetBook(id uuid.UUID) (model.Book, error)
 	UpdateBook(id uuid.UUID, req model.UpdateBookRequest) error
