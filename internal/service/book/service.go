@@ -53,6 +53,12 @@ func (b bookService) UpdateBook(id uuid.UUID, req model.UpdateBookRequest) error
 }
 
 func (b bookService) DeleteBook(id uuid.UUID) error {
-	//TODO implement me
-	panic("implement me")
+	if id == uuid.Nil {
+		id = uuid.New()
+	}
+
+	if err := b.repo.Delete(id); err != nil {
+		return err
+	}
+	return nil
 }

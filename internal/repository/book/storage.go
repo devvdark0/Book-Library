@@ -2,6 +2,7 @@ package book
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/devvdark0/book-library/internal/model"
 	"github.com/devvdark0/book-library/internal/repository"
 	"github.com/google/uuid"
@@ -47,6 +48,9 @@ func (b bookPostgresRepository) Update(id uuid.UUID, book model.Book) error {
 }
 
 func (b bookPostgresRepository) Delete(id uuid.UUID) error {
-	//TODO implement me
-	panic("implement me")
+	_, err := b.db.Exec(`DELETE FROM book WHERE id=$1`, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete book")
+	}
+	return nil
 }
