@@ -1,19 +1,26 @@
 package main
 
 import (
-	"github.com/devvdark0/book-library/internal/handler/book"
+	handler "github.com/devvdark0/book-library/internal/handler/book"
+	repository "github.com/devvdark0/book-library/internal/repository/book"
+	service "github.com/devvdark0/book-library/internal/service/book"
+	"github.com/devvdark0/book-library/pkg/database"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
 
 func main() {
+	db, err := database.ConfigureDb()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	repo := repository.NewPostgresBookRepository(db)
+	serv := service.NewBookService(repo)
+	h := handler.NewBookHandler(serv)
+
 	r := mux.NewRouter()
-	serv := NewBookService()
-	h := book.NewBookHandler(serv)
-	r.HandleFunc("/home", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello into Book Libary!"))
-	})
 	s := r.PathPrefix("/books").Subrouter()
 	s.HandleFunc("", h.ListBooks)
 	s.HandleFunc("", h.CreateBook)
