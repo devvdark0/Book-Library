@@ -2,14 +2,15 @@ package book
 
 import (
 	"github.com/devvdark0/book-library/internal/handler"
+	"github.com/devvdark0/book-library/internal/service"
 	"net/http"
 )
 
 type bookHandler struct {
-	service BookService
+	service service.Service
 }
 
-func NewBookHandler(serv BookService) handler.Handler {
+func NewBookHandler(serv service.Service) handler.Handler {
 	return bookHandler{service: serv}
 }
 
