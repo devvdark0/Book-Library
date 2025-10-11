@@ -34,8 +34,21 @@ func (b bookHandler) CreateBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func (b bookHandler) ListBooks(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+	books, err := b.service.ListBooks()
+	if err != nil {
+		if errors.Is(err, bookErr.ErrNotFound) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(&books); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func (b bookHandler) GetBook(w http.ResponseWriter, r *http.Request) {

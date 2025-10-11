@@ -38,8 +38,11 @@ func (b bookService) CreateBook(req model.CreateBookRequest) error {
 }
 
 func (b bookService) ListBooks() ([]model.Book, error) {
-	//TODO implement me
-	panic("implement me")
+	books, err := b.repo.List()
+	if err != nil {
+		return nil, err
+	}
+	return books, nil
 }
 
 func (b bookService) GetBook(id uuid.UUID) (model.Book, error) {

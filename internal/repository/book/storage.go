@@ -35,8 +35,28 @@ func (b bookPostgresRepository) Create(book model.Book) error {
 }
 
 func (b bookPostgresRepository) List() ([]model.Book, error) {
-	//TODO implement me
-	panic("implement me")
+	var books []model.Book
+	rows, err := b.db.Query(`SELECT * FROM book`)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var book model.Book
+		if err := rows.Scan(
+			&book.ID,
+			&book.Title,
+			&book.Description,
+			&book.AuthorName,
+			&book.Year,
+			&book.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		books = append(books, book)
+	}
+
+	return books, nil
 }
 
 func (b bookPostgresRepository) Get(id uuid.UUID) (model.Book, error) {
