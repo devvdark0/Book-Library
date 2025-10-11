@@ -22,11 +22,11 @@ func main() {
 
 	r := mux.NewRouter()
 	s := r.PathPrefix("/books").Subrouter()
-	s.HandleFunc("", h.ListBooks)
-	s.HandleFunc("", h.CreateBook)
-	s.HandleFunc("/{id}", h.GetBook)
-	s.HandleFunc("/{id}", h.UpdateBook)
-	s.HandleFunc("/{id}", h.DeleteBook)
+	s.HandleFunc("", h.ListBooks).Methods(http.MethodGet)
+	s.HandleFunc("", h.CreateBook).Methods(http.MethodPost)
+	s.HandleFunc("/{id}", h.GetBook).Methods(http.MethodGet)
+	s.HandleFunc("/{id}", h.UpdateBook).Methods(http.MethodPut)
+	s.HandleFunc("/{id}", h.DeleteBook).Methods(http.MethodDelete)
 
 	if err := http.ListenAndServe(":80", r); err != nil {
 		log.Fatal(err)
