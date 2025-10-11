@@ -2,7 +2,9 @@ package book
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	bookErr "github.com/devvdark0/book-library/internal/errors/book"
 	"github.com/devvdark0/book-library/internal/model"
 	"github.com/devvdark0/book-library/internal/repository"
 	"github.com/google/uuid"
@@ -38,8 +40,25 @@ func (b bookPostgresRepository) List() ([]model.Book, error) {
 }
 
 func (b bookPostgresRepository) Get(id uuid.UUID) (model.Book, error) {
-	//TODO implement me
-	panic("implement me")
+	var book model.Book
+	err := b.db.QueryRow(
+		`SELECT * FROM book WHERE id = $1`,
+		id,
+	).Scan(
+		&book.ID,
+		&book.Title,
+		&book.Description,
+		&book.AuthorName,
+		&book.Year,
+		&book.CreatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.Book{}, bookErr.ErrNotFound
+		}
+		return model.Book{}, err
+	}
+	return book, nil
 }
 
 func (b bookPostgresRepository) Update(id uuid.UUID, book model.Book) error {

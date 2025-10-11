@@ -2,6 +2,8 @@ package book
 
 import (
 	"encoding/json"
+	"errors"
+	bookErr "github.com/devvdark0/book-library/internal/errors/book"
 	"github.com/devvdark0/book-library/internal/handler"
 	"github.com/devvdark0/book-library/internal/model"
 	"github.com/devvdark0/book-library/internal/service"
@@ -37,8 +39,29 @@ func (b bookHandler) ListBooks(w http.ResponseWriter, r *http.Request) {
 }
 
 func (b bookHandler) GetBook(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+	id := mux.Vars(r)["id"]
+	uuidId, err := uuid.Parse(id)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	book, err := b.service.GetBook(uuidId)
+	if err != nil {
+		if errors.Is(err, bookErr.ErrNotFound) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(&book); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+
 }
 
 func (b bookHandler) UpdateBook(w http.ResponseWriter, r *http.Request) {
