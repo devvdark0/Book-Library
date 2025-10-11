@@ -16,8 +16,19 @@ func NewPostgresBookRepository(db *sql.DB) repository.Repository {
 }
 
 func (b bookPostgresRepository) Create(book model.Book) error {
-	//TODO implement me
-	panic("implement me")
+	_, err := b.db.Exec(
+		`INSERT INTO book(id, title, description, author_name, year, created_at) VALUES($1, $2, $3, $4, $5, $6)`,
+		book.ID,
+		book.Title,
+		book.Description,
+		book.AuthorName,
+		book.Year,
+		book.CreatedAt,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (b bookPostgresRepository) List() ([]model.Book, error) {
