@@ -1,6 +1,7 @@
 package book
 
 import (
+	"errors"
 	"fmt"
 	"github.com/devvdark0/book-library/internal/model"
 	"github.com/devvdark0/book-library/internal/repository"
@@ -54,8 +55,23 @@ func (b bookService) GetBook(id uuid.UUID) (model.Book, error) {
 }
 
 func (b bookService) UpdateBook(id uuid.UUID, req model.UpdateBookRequest) error {
-	//TODO implement me
-	panic("implement me")
+	if id == uuid.Nil {
+		return errors.New("not valid uuid")
+	}
+	if *req.Year < 0 {
+		return errors.New("invalid year of book")
+	}
+	newBook := model.Book{
+		ID:          id,
+		Title:       *req.Title,
+		Description: *req.Description,
+		AuthorName:  *req.Author,
+		Year:        *req.Year,
+	}
+	if err := b.repo.Update(id, newBook); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (b bookService) DeleteBook(id uuid.UUID) error {
