@@ -4,3 +4,6 @@ migrate-up:
 .PHONY: migrate-down
 migrate-down:
 	goose -dir ./db/migrations postgres "postgres://user:pass@localhost:5432/library?sslmode=disable" down
+.PHONY: run
+run:
+	go run ./cmd/main.go
