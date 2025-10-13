@@ -1,4 +1,19 @@
 services:
+  app:
+    container_name: library-api
+    build: .
+    ports:
+      - "80:80"
+    environment:
+      DBHost: postgres
+      DBPort: 5432
+      DBUser: user
+      DBPassword: pass
+      DBName: library
+    depends_on:
+      - postgres
+    networks:
+      - app-network
   postgres:
     container_name: book-library-db
     image: postgres:15
@@ -10,6 +25,12 @@ services:
       POSTGRES_PASSWORD: pass
     volumes:
       - pg_data:/var/lib/postgresql/data
+    networks:
+      - app-network
 
 volumes:
   pg_data:
+
+networks:
+  app-network:
+    driver: bridge
