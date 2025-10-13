@@ -8,6 +8,7 @@ import (
 	"github.com/devvdark0/book-library/internal/model"
 	"github.com/devvdark0/book-library/internal/repository"
 	"github.com/google/uuid"
+	"strings"
 )
 
 type bookPostgresRepository struct {
@@ -82,8 +83,35 @@ func (b bookPostgresRepository) Get(id uuid.UUID) (model.Book, error) {
 }
 
 func (b bookPostgresRepository) Update(id uuid.UUID, book model.Book) error {
-	//TODO implement me
-	panic("implement me")
+	var clauses []string
+	var args []interface{}
+	counter := 1
+	if book.Title != "" {
+		clauses = append(clauses, fmt.Sprintf("title=$%d", counter))
+		args = append(args, book.Title)
+		counter++
+	}
+	if book.Description != "" {
+		clauses = append(clauses, fmt.Sprintf("description=$%d", counter))
+		args = append(args, book.Description)
+		counter++
+	}
+	if book.AuthorName != "" {
+		clauses = append(clauses, fmt.Sprintf("author_name=$%d", counter))
+		args = append(args, book.AuthorName)
+		counter++
+	}
+	if book.Year != 0 {
+		clauses = append(clauses, fmt.Sprintf("year=$%d", counter))
+		args = append(args, book.Year)
+		counter++
+	}
+	query := fmt.Sprintf("UPDATE book SET %s WHERE id=%q", strings.Join(clauses, ", "), id)
+	_, err := b.db.Exec(query, args)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (b bookPostgresRepository) Delete(id uuid.UUID) error {
