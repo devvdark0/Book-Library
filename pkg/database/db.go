@@ -3,12 +3,20 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"github.com/devvdark0/book-library/internal/config"
 	_ "github.com/lib/pq"
 	"time"
 )
 
-func ConfigureDb() (*sql.DB, error) {
-	dsn := "postgres://user:pass@localhost:5432/library?sslmode=disable"
+func ConfigureDb(cfg *config.Config) (*sql.DB, error) {
+	dsn := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		cfg.DBUser,
+		cfg.DBPassword,
+		cfg.DBHost,
+		cfg.DBPort,
+		cfg.DBName,
+	)
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open db: %w", err)
