@@ -4,33 +4,39 @@ import (
 	"github.com/devvdark0/book-library/internal/config"
 	"github.com/devvdark0/book-library/internal/handler"
 	bookHandler "github.com/devvdark0/book-library/internal/handler/book"
+	"github.com/devvdark0/book-library/internal/logger"
 	bookRepository "github.com/devvdark0/book-library/internal/repository/book"
 	bookService "github.com/devvdark0/book-library/internal/service/book"
 	"github.com/devvdark0/book-library/pkg/database"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 )
 
 func main() {
 	cfg := config.Load()
 
+	log := logger.InitLogger(cfg)
+
+	log.Info("connecting to the database...")
 	db, err := database.ConfigureDb(cfg)
 	if err != nil {
-		log.Fatal(err)
+		log.Error("failed to connect to db:", err)
+		return
 	}
+	log.Info("Successfully connected to db!")
 	defer db.Close()
 
-	repo := bookRepository.NewPostgresBookRepository(db)
-	serv := bookService.NewBookService(repo)
+	repo := bookRepository.NewPostgresBookRepository(db, log)
+	serv := bookService.NewBookService(repo, log)
 	h := bookHandler.NewBookHandler(serv)
 
 	r := configureRouter(h)
-
-	if err := http.ListenAndServe(":80", r); err != nil {
-		log.Fatal(err)
+	log.Info("starting server on port:", cfg.Addr)
+	if err := http.ListenAndServe(cfg.Addr, r); err != nil {
+		log.Error("failed to run the server:", err)
+		return
 	}
-
+	log.Info("server started!!!")
 }
 
 func configureRouter(h handler.Handler) *mux.Router {

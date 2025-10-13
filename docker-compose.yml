@@ -5,6 +5,7 @@ services:
     ports:
       - "80:80"
     environment:
+      Env: prod
       DBHost: postgres
       DBPort: 5432
       DBUser: user

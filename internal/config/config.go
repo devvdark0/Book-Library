@@ -3,6 +3,8 @@ package config
 import "os"
 
 type Config struct {
+	Env        string
+	Addr       string
 	DBHost     string
 	DBPort     string
 	DBUser     string
@@ -12,6 +14,8 @@ type Config struct {
 
 func Load() *Config {
 	return &Config{
+		Env:        getEnv("Env", "dev"),
+		Addr:       getEnv("Address", ":80"),
 		DBHost:     getEnv("DBHost", "localhost"),
 		DBPort:     getEnv("DBPort", "5432"),
 		DBUser:     getEnv("DBUser", "user"),
